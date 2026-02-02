@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheaterDetector | File Portal</title>
+    <title>CheaterDetector | Secure Portal</title>
     <style>
         body {
             background-color: #0f0f0f;
             color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -22,39 +22,52 @@
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 1px solid #333;
+            width: 350px;
         }
-        h1 { color: #007bff; margin-bottom: 10px; }
-        #status { color: #888; margin-bottom: 25px; font-style: italic; }
+        h1 { color: #007bff; margin-bottom: 20px; }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: #222;
+            color: white;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        #status { color: #888; margin-bottom: 25px; font-size: 0.9rem; }
         .btn {
             display: none;
-            background: #007bff;
+            background: #28a745;
             color: white;
             padding: 15px 35px;
             text-decoration: none;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 1.1rem;
-            transition: transform 0.2s, background 0.2s;
+            transition: 0.3s;
         }
-        .btn:hover {
-            background: #0056b3;
-            transform: translateY(-2px);
-        }
+        .btn:hover { background: #218838; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Basement Explorer</h1>
-        <p id="status">Scanning for local server...</p>
+        <h1>Private Access</h1>
+        <div id="login-section">
+            <input type="password" id="passInput" placeholder="Enter PIN" onkeyup="checkPass()">
+            <p id="status">Enter your PIN to reveal the server link</p>
+        </div>
         
         <a id="explorerBtn" href="#" target="_blank" class="btn">
-            ACCESS FILES NOW
+            OPEN FILE EXPLORER
         </a>
     </div>
 
     <script>
-        async function getLiveLink() {
+        let liveUrl = "";
+
+        async function fetchServerLink() {
             // REPLACE THESE WITH YOUR JSONBIN DETAILS
             const BIN_ID = "697fec9ad0ea881f4099af78"; 
             const API_KEY = "$2a$10$0A.tPWYlNG8Ew8BvfXR0z.d9XHZsJn4eGNqG/A2E9nhuNoLlgFcPK"; 
@@ -64,23 +77,32 @@
                     headers: { "X-Master-Key": API_KEY }
                 });
                 const data = await res.json();
-                
-                if (data.record.url && data.record.url.startsWith("http")) {
-                    document.getElementById('status').innerText = "Connection Established ✓";
-                    document.getElementById('status').style.color = "#28a745";
-                    const btn = document.getElementById('explorerBtn');
-                    btn.href = data.record.url;
-                    btn.style.display = "inline-block";
-                }
+                liveUrl = data.record.url;
             } catch (e) {
-                document.getElementById('status').innerText = "Basement Server Offline";
-                document.getElementById('status').style.color = "#dc3545";
+                console.log("Error fetching link");
             }
         }
 
-        getLiveLink();
-        // Checks for a new link every 30 seconds in case you restart the EXE
-        setInterval(getLiveLink, 30000);
+        function checkPass() {
+            const input = document.getElementById('passInput').value;
+            const btn = document.getElementById('explorerBtn');
+            const status = document.getElementById('status');
+
+            if (input === "777") {
+                if (liveUrl && liveUrl.startsWith("http")) {
+                    status.innerText = "Access Granted ✓";
+                    status.style.color = "#28a745";
+                    btn.href = liveUrl;
+                    btn.style.display = "inline-block";
+                    document.getElementById('passInput').style.display = "none";
+                } else {
+                    status.innerText = "PIN Correct, but Basement PC is Offline.";
+                }
+            }
+        }
+
+        // Fetch the link immediately so it's ready when you type the PIN
+        fetchServerLink();
     </script>
 </body>
 </html>
