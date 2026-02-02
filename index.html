@@ -1,114 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CheaterDetector | Secure Portal</title>
+    <title>Basement File Portal</title>
     <style>
-        body {
-            background-color: #0f0f0f;
-            color: #ffffff;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .container {
-            text-align: center;
-            background: #1a1a1a;
-            padding: 3rem;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid #333;
-            width: 350px;
-        }
-        h1 { color: #007bff; margin-bottom: 20px; font-size: 1.5rem; }
-        input {
-            width: 80%;
-            padding: 12px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            border: 1px solid #444;
-            background: #222;
-            color: white;
-            text-align: center;
-            font-size: 1.2rem;
-            outline: none;
-        }
-        input:focus { border-color: #007bff; }
-        #status { color: #888; margin-bottom: 25px; font-size: 0.9rem; }
-        .btn {
-            display: none;
-            background: #28a745;
-            color: white;
-            padding: 15px 35px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: 0.3s;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
-        }
-        .btn:hover { background: #218838; transform: scale(1.05); }
+        body { background: #0f0f0f; color: white; font-family: sans-serif; text-align: center; padding-top: 15vh; }
+        .card { background: #1a1a1a; padding: 40px; border-radius: 20px; display: inline-block; border: 1px solid #333; width: 350px; }
+        #status { color: #888; margin: 20px 0; font-size: 1rem; }
+        .btn { display: none; background: #007bff; color: white; padding: 18px 30px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 1.2rem; }
+        .btn:hover { background: #0056b3; }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <h1>Basement Access</h1>
-        <div id="login-section">
-            <input type="password" id="passInput" placeholder="Enter PIN" onkeyup="checkPass()">
-            <p id="status">Enter PIN to link to basement server</p>
-        </div>
-        
-        <a id="explorerBtn" href="#" target="_blank" class="btn">
-            OPEN FILE EXPLORER
-        </a>
+    <div class="card">
+        <h1>Basement Files</h1>
+        <p id="status">Connecting to basement PC...</p>
+        <a id="explorerBtn" href="#" target="_blank" class="btn">VIEW FILES NOW</a>
     </div>
 
     <script>
-        let liveUrl = "";
-        // REPLACE THIS WITH YOUR ACTUAL BIN ID
         const BIN_ID = "697ff9a443b1c97be95e69e6"; 
 
-        async function fetchServerLink() {
+        async function updatePortal() {
             try {
-                // Fetching from a PUBLIC bin (no Master Key needed)
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`);
-                const data = await res.json();
-                liveUrl = data.record.url;
-                console.log("Link loaded from cloud.");
-            } catch (e) {
-                console.log("Waiting for server to upload link...");
-            }
-        }
+                // Fetch the link from your public bin
+                const r = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`);
+                const d = await r.json();
+                const liveUrl = d.record.url;
 
-        function checkPass() {
-            const input = document.getElementById('passInput').value;
-            const btn = document.getElementById('explorerBtn');
-            const status = document.getElementById('status');
-
-            if (input === "777") {
-                if (liveUrl && liveUrl.startsWith("http")) {
-                    status.innerText = "Access Granted ✓";
-                    status.style.color = "#28a745";
+                if(liveUrl && liveUrl.includes("http")) {
+                    document.getElementById('status').innerText = "System Online ✓";
+                    document.getElementById('status').style.color = "#28a745";
+                    
+                    const btn = document.getElementById('explorerBtn');
                     btn.href = liveUrl;
                     btn.style.display = "inline-block";
-                    document.getElementById('passInput').style.display = "none";
-                } else {
-                    status.innerText = "PIN Correct. Server still starting...";
-                    status.style.color = "#ffc107";
-                    // Try to fetch again in case it just started
-                    fetchServerLink();
                 }
+            } catch(e) { 
+                document.getElementById('status').innerText = "Searching for server...";
             }
         }
 
-        // Initial fetch
-        fetchServerLink();
-        // Keep checking for the link every 10 seconds
-        setInterval(fetchServerLink, 10000);
+        updatePortal();
+        setInterval(updatePortal, 5000); // Check every 5 seconds
     </script>
 </body>
 </html>
