@@ -8,7 +8,7 @@
         body {
             background-color: #0f0f0f;
             color: #ffffff;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -24,18 +24,20 @@
             border: 1px solid #333;
             width: 350px;
         }
-        h1 { color: #007bff; margin-bottom: 20px; }
+        h1 { color: #007bff; margin-bottom: 20px; font-size: 1.5rem; }
         input {
             width: 80%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 20px;
-            border-radius: 5px;
+            border-radius: 8px;
             border: 1px solid #444;
             background: #222;
             color: white;
             text-align: center;
             font-size: 1.2rem;
+            outline: none;
         }
+        input:focus { border-color: #007bff; }
         #status { color: #888; margin-bottom: 25px; font-size: 0.9rem; }
         .btn {
             display: none;
@@ -46,17 +48,18 @@
             border-radius: 8px;
             font-weight: bold;
             transition: 0.3s;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
-        .btn:hover { background: #218838; }
+        .btn:hover { background: #218838; transform: scale(1.05); }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>Private Access</h1>
+        <h1>Basement Access</h1>
         <div id="login-section">
             <input type="password" id="passInput" placeholder="Enter PIN" onkeyup="checkPass()">
-            <p id="status">Enter your PIN to reveal the server link</p>
+            <p id="status">Enter PIN to link to basement server</p>
         </div>
         
         <a id="explorerBtn" href="#" target="_blank" class="btn">
@@ -66,20 +69,18 @@
 
     <script>
         let liveUrl = "";
+        // REPLACE THIS WITH YOUR ACTUAL BIN ID
+        const BIN_ID = "697ff9a443b1c97be95e69e6"; 
 
         async function fetchServerLink() {
-            // REPLACE THESE WITH YOUR JSONBIN DETAILS
-            const BIN_ID = "697fec9ad0ea881f4099af78"; 
-            const API_KEY = "$2a$10$0A.tPWYlNG8Ew8BvfXR0z.d9XHZsJn4eGNqG/A2E9nhuNoLlgFcPK"; 
-
             try {
-                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                    headers: { "X-Master-Key": API_KEY }
-                });
+                // Fetching from a PUBLIC bin (no Master Key needed)
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`);
                 const data = await res.json();
                 liveUrl = data.record.url;
+                console.log("Link loaded from cloud.");
             } catch (e) {
-                console.log("Error fetching link");
+                console.log("Waiting for server to upload link...");
             }
         }
 
@@ -96,13 +97,18 @@
                     btn.style.display = "inline-block";
                     document.getElementById('passInput').style.display = "none";
                 } else {
-                    status.innerText = "PIN Correct, but Basement PC is Offline.";
+                    status.innerText = "PIN Correct. Server still starting...";
+                    status.style.color = "#ffc107";
+                    // Try to fetch again in case it just started
+                    fetchServerLink();
                 }
             }
         }
 
-        // Fetch the link immediately so it's ready when you type the PIN
+        // Initial fetch
         fetchServerLink();
+        // Keep checking for the link every 10 seconds
+        setInterval(fetchServerLink, 10000);
     </script>
 </body>
 </html>
