@@ -1,31 +1,86 @@
-<div style="text-align:center; padding:40px; font-family:sans-serif; background:#111; color:white;">
-    <h2>Live File Explorer</h2>
-    <p id="status">Connecting to Basement PC...</p>
-    <a id="explorerBtn" href="#" target="_blank" style="display:none; padding:15px 30px; background:#007bff; color:white; text-decoration:none; border-radius:8px; font-weight:bold;">
-        OPEN FILE EXPLORER
-    </a>
-</div>
-
-<script>
-    async function getLiveLink() {
-        const BIN_ID = "697fec9ad0ea881f4099af78"; // Same ID as Python script
-        const API_KEY = "$2a$10$0A.tPWYlNG8Ew8BvfXR0z.d9XHZsJn4eGNqG/A2E9nhuNoLlgFcPK"; // Same Key as Python script
-
-        try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-                headers: { "X-Master-Key": API_KEY }
-            });
-            const data = await res.json();
-            
-            if (data.record.url && data.record.url.startsWith("http")) {
-                document.getElementById('status').innerText = "System Online";
-                const btn = document.getElementById('explorerBtn');
-                btn.href = data.record.url;
-                btn.style.display = "inline-block";
-            }
-        } catch (e) {
-            document.getElementById('status').innerText = "Basement PC Offline";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CheaterDetector | File Portal</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-    }
-    getLiveLink();
-</script>
+        .container {
+            text-align: center;
+            background: #1a1a1a;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+        }
+        h1 { color: #007bff; margin-bottom: 10px; }
+        #status { color: #888; margin-bottom: 25px; font-style: italic; }
+        .btn {
+            display: none;
+            background: #007bff;
+            color: white;
+            padding: 15px 35px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.2s, background 0.2s;
+        }
+        .btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Basement Explorer</h1>
+        <p id="status">Scanning for local server...</p>
+        
+        <a id="explorerBtn" href="#" target="_blank" class="btn">
+            ACCESS FILES NOW
+        </a>
+    </div>
+
+    <script>
+        async function getLiveLink() {
+            // REPLACE THESE WITH YOUR JSONBIN DETAILS
+            const BIN_ID = "697fec9ad0ea881f4099af78"; 
+            const API_KEY = "$2a$10$0A.tPWYlNG8Ew8BvfXR0z.d9XHZsJn4eGNqG/A2E9nhuNoLlgFcPK"; 
+
+            try {
+                const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                    headers: { "X-Master-Key": API_KEY }
+                });
+                const data = await res.json();
+                
+                if (data.record.url && data.record.url.startsWith("http")) {
+                    document.getElementById('status').innerText = "Connection Established ✓";
+                    document.getElementById('status').style.color = "#28a745";
+                    const btn = document.getElementById('explorerBtn');
+                    btn.href = data.record.url;
+                    btn.style.display = "inline-block";
+                }
+            } catch (e) {
+                document.getElementById('status').innerText = "Basement Server Offline";
+                document.getElementById('status').style.color = "#dc3545";
+            }
+        }
+
+        getLiveLink();
+        // Checks for a new link every 30 seconds in case you restart the EXE
+        setInterval(getLiveLink, 30000);
+    </script>
+</body>
+</html>
