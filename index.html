@@ -1,0 +1,41 @@
+<div style="text-align:center; padding:40px; font-family:sans-serif; background:#111; color:white; border-radius:15px; margin:20px;">
+    <h2>Live Basement Explorer</h2>
+    <p id="status">Connecting to Basement PC...</p>
+    
+    <a id="explorerBtn" href="#" target="_blank" 
+       style="display:none; padding:15px 30px; background:#007bff; color:white; text-decoration:none; border-radius:8px; font-weight:bold; transition: 0.3s;">
+       OPEN FILE EXPLORER
+    </a>
+</div>
+
+<script>
+    async function getLiveLink() {
+        const BIN_ID = "YOUR_BIN_ID_HERE";      // <--- REPLACE THIS
+        const API_KEY = "YOUR_API_KEY_HERE";    // <--- REPLACE THIS
+
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { "X-Master-Key": API_KEY }
+            });
+            const data = await res.json();
+            
+            // If the Python script has sent a link, show the button
+            if (data.record.url && data.record.url.startsWith("http")) {
+                document.getElementById('status').innerText = "System Online";
+                const btn = document.getElementById('explorerBtn');
+                btn.href = data.record.url;
+                btn.style.display = "inline-block";
+            } else {
+                document.getElementById('status').innerText = "Server is starting up...";
+            }
+        } catch (e) {
+            document.getElementById('status').innerText = "Basement PC is Offline";
+        }
+    }
+
+    // Run this function immediately when the page loads
+    getLiveLink();
+    
+    // Optional: Refresh the link every 30 seconds automatically
+    setInterval(getLiveLink, 30000);
+</script>
